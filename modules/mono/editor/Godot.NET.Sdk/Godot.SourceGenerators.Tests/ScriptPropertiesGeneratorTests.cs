@@ -69,6 +69,15 @@ public class ScriptPropertiesGeneratorTests
     }
 
     [Fact]
+    public async Task Generic()
+    {
+        await CSharpSourceGeneratorVerifier<ScriptPropertiesGenerator>.Verify(
+            "Generic.cs",
+            "Generic(Of T)_ScriptProperties.generated.cs"
+        );
+    }
+
+    [Fact]
     public async Task ExportedButtons()
     {
         await CSharpSourceGeneratorVerifier<ScriptPropertiesGenerator>.Verify(
