@@ -33,6 +33,7 @@
 #include "core/config/engine.h"
 #include "core/config/project_settings.h"
 #include "core/object/class_db.h"
+#include "core/object/property_info.h"
 #include "core/os/os.h"
 #include "scene/main/scene_tree.h"
 #include "servers/rendering/rendering_server.h"
@@ -126,7 +127,7 @@ uint32_t Light3D::get_cull_mask() const {
 void Light3D::set_color(const Color &p_color) {
 	color = p_color;
 
-	if (GLOBAL_GET_CACHED(bool, "rendering/lights_and_shadows/use_physical_light_units")) {
+	if (GLOBAL_GET_CACHED(bool, "rendering/lights_and_shadows/use_physical_light_units") || use_temperature) {
 		Color combined = color.srgb_to_linear();
 		combined *= correlated_color.srgb_to_linear();
 		RS::get_singleton()->light_set_color(light, combined.linear_to_srgb());
@@ -267,9 +268,25 @@ Color _color_from_temperature(float p_temperature) {
 	return Color(linear.x, linear.y, linear.z).clamp().linear_to_srgb();
 }
 
+void Light3D::set_use_temperature(bool p_enable) {
+	use_temperature = p_enable;
+	if (use_temperature) {
+		correlated_color = _color_from_temperature(temperature);
+		Color combined = color.srgb_to_linear() * correlated_color.srgb_to_linear();
+		RS::get_singleton()->light_set_color(light, combined.linear_to_srgb());
+		update_gizmos();
+	} else {
+		RS::get_singleton()->light_set_color(light, color);
+	}
+}
+
+bool Light3D::get_use_temperature() const {
+	return use_temperature;
+}
+
 void Light3D::set_temperature(const float p_temperature) {
 	temperature = p_temperature;
-	if (!GLOBAL_GET_CACHED(bool, "rendering/lights_and_shadows/use_physical_light_units")) {
+	if (!use_temperature) {
 		return;
 	}
 	correlated_color = _color_from_temperature(temperature);
@@ -340,9 +357,11 @@ void Light3D::_validate_property(PropertyInfo &p_property) const {
 		p_property.usage = PROPERTY_USAGE_NONE;
 	} else if (get_light_type() == RSE::LIGHT_DIRECTIONAL && p_property.name == "light_intensity_lumens") {
 		p_property.usage = PROPERTY_USAGE_NONE;
-	} else if (!GLOBAL_GET_CACHED(bool, "rendering/lights_and_shadows/use_physical_light_units") && (p_property.name == "light_intensity_lumens" || p_property.name == "light_intensity_lux" || p_property.name == "light_temperature")) {
+	} else if (!GLOBAL_GET_CACHED(bool, "rendering/lights_and_shadows/use_physical_light_units") && (p_property.name == "light_intensity_lumens" || p_property.name == "light_intensity_lux")) {
 		p_property.usage = PROPERTY_USAGE_NONE;
 	} else if (get_light_type() == RSE::LIGHT_AREA && p_property.name == "light_projector") {
+		p_property.usage = PROPERTY_USAGE_NONE;
+	} else if (!use_temperature && p_property.name == "light_temperature") {
 		p_property.usage = PROPERTY_USAGE_NONE;
 	}
 }
@@ -390,6 +409,8 @@ void Light3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_projector", "projector"), &Light3D::set_projector);
 	ClassDB::bind_method(D_METHOD("get_projector"), &Light3D::get_projector);
 
+	ClassDB::bind_method(D_METHOD("set_use_temperature", "enable"), &Light3D::set_use_temperature);
+	ClassDB::bind_method(D_METHOD("get_use_temperature"), &Light3D::get_use_temperature);
 	ClassDB::bind_method(D_METHOD("set_temperature", "temperature"), &Light3D::set_temperature);
 	ClassDB::bind_method(D_METHOD("get_temperature"), &Light3D::get_temperature);
 	ClassDB::bind_method(D_METHOD("get_correlated_color"), &Light3D::get_correlated_color);
@@ -397,6 +418,7 @@ void Light3D::_bind_methods() {
 	ADD_GROUP("Light", "light_");
 	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "light_intensity_lumens", PROPERTY_HINT_RANGE, "0,100000.0,0.01,or_greater,suffix:lm"), "set_param", "get_param", PARAM_INTENSITY);
 	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "light_intensity_lux", PROPERTY_HINT_RANGE, "0,150000.0,0.01,or_greater,suffix:lx"), "set_param", "get_param", PARAM_INTENSITY);
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "light_use_temperature", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_UPDATE_ALL_IF_MODIFIED), "set_use_temperature", "get_use_temperature");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "light_temperature", PROPERTY_HINT_RANGE, "1000,15000.0,1.0,suffix:k"), "set_temperature", "get_temperature");
 	ADD_PROPERTY(PropertyInfo(Variant::COLOR, "light_color", PROPERTY_HINT_COLOR_NO_ALPHA), "set_color", "get_color");
 	ADD_PROPERTYI(PropertyInfo(Variant::FLOAT, "light_energy", PROPERTY_HINT_RANGE, "0,16,0.001,or_greater"), "set_param", "get_param", PARAM_ENERGY);

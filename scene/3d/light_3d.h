@@ -84,6 +84,7 @@ private:
 	void _update_visibility();
 	BakeMode bake_mode = BAKE_DYNAMIC;
 	Ref<Texture2D> projector;
+	bool use_temperature = false;
 	Color correlated_color = Color(1.0, 1.0, 1.0);
 	float temperature = 6500.0;
 	// bind helpers
@@ -144,6 +145,8 @@ public:
 	void set_projector(const Ref<Texture2D> &p_texture);
 	Ref<Texture2D> get_projector() const;
 
+	void set_use_temperature(bool p_enable);
+	bool get_use_temperature() const;
 	void set_temperature(const float p_temperature);
 	float get_temperature() const;
 	Color get_correlated_color() const;
