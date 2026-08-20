@@ -17,7 +17,7 @@
 
         godot = pkgs.callPackage ./godot.nix {
           src = ./.;
-          version = "4.7";
+          version = "4.7.2";
 		  stdenv = pkgs.ccacheStdenv;
         };
 
@@ -40,7 +40,7 @@
               exit 1
             fi
             "$godot_bin" --generate-mono-glue ./modules/mono/glue
-            ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir ./bin
+            ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir ./bin --push-nupkgs-local "$HOME/.local/share/godot-nupkgs"
           '')
           (writeShellScriptBin "clangd" ''
             exec ${clang-tools}/bin/clangd --query-driver=${gcc}/bin/g++ "$@"
@@ -75,6 +75,8 @@
             # Vulkan (Forward+/Mobile rendering)
             vulkan-loader
             libxrender
+
+            gcc-unwrapped.lib
           ]
           ++ x11Libs;
         libraryPath = pkgs.lib.makeLibraryPath runtimeLibs;

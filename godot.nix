@@ -12,6 +12,7 @@
   enet,
   fontconfig,
   freetype,
+  gcc-unwrapped,
   gettext,
   glib,
   glslang,
@@ -307,6 +308,26 @@ let
       mkdir -p "$out"/share/nuget
       mv "$out"/libexec/GodotSharp/Tools/nupkgs "$out"/share/nuget/source
 
+      # Extract the bundled nupkgs into the global-packages layout used by
+      # NUGET_FALLBACK_PACKAGES so projects resolve them locally.
+      mkdir -p "$out"/share/nuget/packages
+      python - <<EOF
+      import glob, os, re, zipfile
+      src = "$out/share/nuget/source"
+      dst = "$out/share/nuget/packages"
+      for path in glob.glob(os.path.join(src, "**", "*.nupkg"), recursive=True):
+          with zipfile.ZipFile(path) as z:
+              nuspec = next((n for n in z.namelist() if n.endswith(".nuspec")), None)
+              if not nuspec:
+                  continue
+              xml = z.read(nuspec).decode()
+              pkg_id = re.search(r"<id>([^<]+)</id>", xml).group(1)
+              pkg_ver = re.search(r"<version>([^<]+)</version>", xml).group(1)
+              dest_dir = os.path.join(dst, pkg_id.lower(), pkg_ver)
+              os.makedirs(dest_dir, exist_ok=True)
+              z.extractall(dest_dir)
+      EOF
+
       wrapProgram "$out"/libexec/${binary} \
         --prefix NUGET_FALLBACK_PACKAGES ';' "$out"/share/nuget/packages/ \
         --set DOTNET_ROOT "${dotnetRoot}"
@@ -378,6 +399,7 @@ let
 
           wrapProgram "$out"/libexec/${binary} \
             --prefix PATH : "${lib.makeBinPath [ finalAttrs.dotnet-sdk ]}" \
+            --prefix LD_LIBRARY_PATH : "${gcc-unwrapped.lib}/lib" \
             --set DOTNET_ROOT "${finalAttrs.dotnet-sdk}/share/dotnet"
 
           runHook postInstall
