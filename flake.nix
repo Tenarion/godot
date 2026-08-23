@@ -75,20 +75,23 @@
             # Vulkan (Forward+/Mobile rendering)
             vulkan-loader
             libxrender
-
-            gcc-unwrapped.lib
           ]
           ++ x11Libs;
         libraryPath = pkgs.lib.makeLibraryPath runtimeLibs;
+        godot-mono = godot.override {
+          withMono = true;
+          nugetDeps = ./deps.json;
+        };
       in
       {
         packages = {
           default = godot;
           godot = godot;
-          godot-mono = godot.override {
-            withMono = true;
-            nugetDeps = ./deps.json;
-          };
+          godot-mono = godot-mono;
+          godot-template = godot.export-template;
+          godot-template-debug = godot.export-template-debug;
+          godot-mono-template = godot-mono.export-template;
+          godot-mono-template-debug = godot-mono.export-template-debug;
         };
 
         devShells.default = pkgs.mkShell {
