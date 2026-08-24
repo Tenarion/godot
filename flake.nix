@@ -75,6 +75,8 @@
             # Vulkan (Forward+/Mobile rendering)
             vulkan-loader
             libxrender
+
+			stdenv.cc.cc.lib
           ]
           ++ x11Libs;
         libraryPath = pkgs.lib.makeLibraryPath runtimeLibs;
