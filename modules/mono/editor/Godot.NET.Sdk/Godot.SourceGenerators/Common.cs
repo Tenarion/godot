@@ -147,6 +147,16 @@ namespace Godot.SourceGenerators
                 "The exported tool button must be an expression-bodied property. The '[ExportToolButton]' attribute is only supported on expression-bodied properties with a 'new Callable(...)' or 'Callable.From(...)' expression.",
                 helpLinkUri: string.Format(_helpLinkFormat, "GD0111"));
 
+        public static readonly DiagnosticDescriptor ExportReadOnlyShouldNotBeUsedWithExportRule =
+            new DiagnosticDescriptor(id: "GD0112",
+                title: "The '[ExportReadOnly]' attribute cannot be used with another '[Export]' attribute",
+                messageFormat: "The '[ExportReadOnly]' attribute cannot be used with the '[Export]' or '[ExportToolButton]' attribute on '{0}'",
+                category: "Usage",
+                DiagnosticSeverity.Error,
+                isEnabledByDefault: true,
+                "The '[ExportReadOnly]' attribute cannot be used with '[Export]' or '[ExportToolButton]'. Remove one of the attributes.",
+                helpLinkUri: string.Format(_helpLinkFormat, "GD0112"));
+
         public static readonly DiagnosticDescriptor SignalDelegateMissingSuffixRule =
             new DiagnosticDescriptor(id: "GD0201",
                 title: "The name of the delegate must end with 'EventHandler'",

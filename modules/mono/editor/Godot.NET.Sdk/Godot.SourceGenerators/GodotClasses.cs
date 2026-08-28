@@ -10,6 +10,7 @@ namespace Godot.SourceGenerators
         public const string ExportCategoryAttr = "Godot.ExportCategoryAttribute";
         public const string ExportGroupAttr = "Godot.ExportGroupAttribute";
         public const string ExportSubgroupAttr = "Godot.ExportSubgroupAttribute";
+        public const string ExportReadOnlyAttr = "Godot.ExportReadOnlyAttribute";
         public const string ExportToolButtonAttr = "Godot.ExportToolButtonAttribute";
         public const string SignalAttr = "Godot.SignalAttribute";
         public const string MustBeVariantAttr = "Godot.MustBeVariantAttribute";

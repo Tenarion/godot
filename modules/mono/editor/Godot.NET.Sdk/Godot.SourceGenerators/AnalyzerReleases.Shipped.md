@@ -47,3 +47,4 @@ GD0108  |  Usage   |  Error   | ScriptPropertiesGenerator, [Documentation](https
 GD0109  |  Usage   |  Error   | ScriptPropertiesGenerator, [Documentation](https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/diagnostics/GD0109.html)
 GD0110  |  Usage   |  Error   | ScriptPropertiesGenerator, [Documentation](https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/diagnostics/GD0110.html)
 GD0111  |  Usage   |  Error   | ScriptPropertiesGenerator, [Documentation](https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/diagnostics/GD0111.html)
+GD0112  |  Usage   |  Error   | ScriptPropertiesGenerator, [Documentation](https://docs.godotengine.org/en/latest/tutorials/scripting/c_sharp/diagnostics/GD0112.html)

@@ -420,6 +420,9 @@ namespace Godot.SourceGenerators
             var exportAttr = memberSymbol.GetAttributes()
                 .FirstOrDefault(a => a.AttributeClass?.IsGodotExportAttribute() ?? false);
 
+            var exportReadOnlyAttr = memberSymbol.GetAttributes()
+                .FirstOrDefault(a => a.AttributeClass?.IsGodotExportReadOnlyAttribute() ?? false);
+
             var exportToolButtonAttr = memberSymbol.GetAttributes()
                 .FirstOrDefault(a => a.AttributeClass?.IsGodotExportToolButtonAttribute() ?? false);
 
@@ -431,6 +434,36 @@ namespace Godot.SourceGenerators
                     memberSymbol.ToDisplayString()
                 ));
                 return null;
+            }
+
+            if (exportAttr != null && exportReadOnlyAttr != null)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Common.ExportReadOnlyShouldNotBeUsedWithExportRule,
+                    memberSymbol.Locations.FirstLocationWithSourceTreeOrDefault(),
+                    memberSymbol.ToDisplayString()
+                ));
+                return null;
+            }
+
+            if (exportToolButtonAttr != null && exportReadOnlyAttr != null)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(
+                    Common.ExportReadOnlyShouldNotBeUsedWithExportRule,
+                    memberSymbol.Locations.FirstLocationWithSourceTreeOrDefault(),
+                    memberSymbol.ToDisplayString()
+                ));
+                return null;
+            }
+
+            if (exportReadOnlyAttr != null)
+            {
+                var readOnlyMemberType = (memberSymbol as IPropertySymbol)?.Type ?? (memberSymbol as IFieldSymbol)!.Type;
+                var readOnlyVariantType = MarshalUtils.ConvertMarshalTypeToVariantType(marshalType);
+
+                return new PropertyInfo(readOnlyVariantType, readOnlyMemberType, memberSymbol.Name,
+                    PropertyHint.None, hintString: null,
+                    PropertyUsageFlags.Editor | PropertyUsageFlags.ReadOnly, exported: true);
             }
 
             var propertySymbol = memberSymbol as IPropertySymbol;

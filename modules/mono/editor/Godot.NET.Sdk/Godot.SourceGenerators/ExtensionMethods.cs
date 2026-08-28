@@ -290,6 +290,9 @@ namespace Godot.SourceGenerators
         public static bool IsGodotGlobalClassAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.GlobalClassAttr;
 
+        public static bool IsGodotExportReadOnlyAttribute(this INamedTypeSymbol symbol)
+            => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.ExportReadOnlyAttr;
+
         public static bool IsGodotExportToolButtonAttribute(this INamedTypeSymbol symbol)
             => symbol.FullQualifiedNameOmitGlobal() == GodotClasses.ExportToolButtonAttr;
 
