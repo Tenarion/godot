@@ -13,7 +13,7 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        dotnet = pkgs.dotnetCorePackages.sdk_9_0_3xx;
+        dotnet = pkgs.dotnetCorePackages.sdk_10_0_3xx;
 
         godot = pkgs.callPackage ./godot.nix {
           src = ./.;
