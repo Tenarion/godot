@@ -53,6 +53,7 @@
   zstd,
 
   nugetDeps ? null,
+  dotnetRuntimeSdk ? dotnetCorePackages.sdk_10_0_3xx,
 
   withAlsa ? stdenv.hostPlatform.isLinux,
   withDbus ? true,
@@ -404,7 +405,7 @@ let
 
             pname = finalAttrs.unwrapped.pname + "-wrapper";
             inherit (finalAttrs.unwrapped) version outputs meta;
-            inherit unwrapped dotnet-sdk;
+            inherit unwrapped dotnet-sdk dotnetRuntimeSdk;
 
             dontUnpack = true;
             dontConfigure = true;
@@ -432,7 +433,7 @@ let
               echo "${finalAttrs.dotnet-sdk}" >> "$out"/nix-support/propagated-build-inputs
 
               wrapProgram "$out"/libexec/${binary} \
-                --prefix PATH : "${lib.makeBinPath [ finalAttrs.dotnet-sdk ]}"
+                --prefix PATH : "${lib.makeBinPath [ finalAttrs.dotnetRuntimeSdk ]}"
 
               runHook postInstall
             '';
